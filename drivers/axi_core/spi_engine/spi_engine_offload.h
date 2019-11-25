@@ -1,7 +1,7 @@
 /*******************************************************************************
  *   @file   spi_engine_offload.h
  *   @brief  Header file of SPI Engine offload feature.
- *   @author ADI
+ *   @author Sergiu Cuciurean (sergiu.cuciurean@analog.com)
 ********************************************************************************
  * Copyright 2019(c) Analog Devices, Inc.
  *

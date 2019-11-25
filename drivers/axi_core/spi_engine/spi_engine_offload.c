@@ -1,7 +1,7 @@
 /*******************************************************************************
  *   @file   spi_engine_offload.c
  *   @brief  Implementation of SPI Engine offload feature.
- *   @author ADI
+ *   @author Sergiu Cuciurean (sergiu.cuciurean@analog.com)
 ********************************************************************************
  * Copyright 2019(c) Analog Devices, Inc.
  *
@@ -74,7 +74,7 @@ static inline struct spi_desc_extra *cast_to_extra_desc(void* void_desc)
  *
  ******************************************************************************/
 int32_t spi_eng_offload_init(struct spi_desc **desc,
-		 const struct spi_init_param *param)
+			     const struct spi_init_param *param)
 {
 	uint32_t		data_width;
 	struct spi_desc		*descriptor;

@@ -1,7 +1,7 @@
 /*******************************************************************************
  *   @file   spi_engine_core.c
  *   @brief  Core implementation of the SPI Engine Driver.
- *   @author ADI
+ *   @author Sergiu Cuciurean (sergiu.cuciurean@analog.com)
 ********************************************************************************
  * Copyright 2019(c) Analog Devices, Inc.
  *

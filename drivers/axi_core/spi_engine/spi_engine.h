@@ -1,7 +1,7 @@
 /*******************************************************************************
  *   @file   spi_engine.h
  *   @brief  Header file of SPI Engine Driver.
- *   @author ADI
+ *   @author Sergiu Cuciurean (sergiu.cuciurean@analog.com)
 ********************************************************************************
  * Copyright 2019(c) Analog Devices, Inc.
  *

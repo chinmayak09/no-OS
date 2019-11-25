@@ -1,7 +1,7 @@
 /*******************************************************************************
  *   @file   spi_engine.c
  *   @brief  Implementation of SPI Engine Driver.
- *   @author ADI
+ *   @author Sergiu Cuciurean (sergiu.cuciurean@analog.com)
 ********************************************************************************
  * Copyright 2019(c) Analog Devices, Inc.
  *
@@ -50,10 +50,10 @@
 #include "spi.h"
 #include "spi_engine.h"
 
-/******************************************************************************/
-/********************** Macros and Constants Definitions **********************/
-/******************************************************************************/
-
+/**
+ * @brief Compute the size of an linear array
+ * 
+ */
 #define ARRAY_SIZE(x)	(sizeof(x) / sizeof((x)[0]))
 
 static inline struct spi_desc_extra *cast_to_extra_desc(void* void_desc)
@@ -61,24 +61,14 @@ static inline struct spi_desc_extra *cast_to_extra_desc(void* void_desc)
 	return (struct spi_desc_extra*)void_desc;
 }
 
-/******************************************************************************/
-/************************** Functions Implementation **************************/
-/******************************************************************************/
-
-/*******************************************************************************
- *
- * @func	spi_eng_write
- *
- * @brief	Write the axi registers of the SPI Engine.
- *
- * @params
- *		desc		- Spi engine descriptor extra parameters
- *		reg_addr	- Axi register where the data will be written
- *		reg_data	- Data that will be written
- *
- * @return			- This function allways returns SUCCESS
- *
- ******************************************************************************/
+/**
+ * @brief Write the axi registers of the SPI Engine.
+ * 
+ * @param desc Spi engine descriptor extra parameters
+ * @param reg_addr Axi register where the data will be written
+ * @param reg_data Data that will be written
+ * @return int32_t This function allways returns SUCCESS
+ */
 int32_t spi_eng_write(spi_desc_extra *desc,
 		      uint32_t reg_addr,
 		      uint32_t reg_data)
@@ -88,20 +78,14 @@ int32_t spi_eng_write(spi_desc_extra *desc,
 	return SUCCESS;
 }
 
-/*******************************************************************************
- *
- * @func	spi_eng_read
- *
- * @brief	Read the axi registers of the SPI Engine.
- *
- * @params
- *		desc		- Spi engine descriptor extra parameters
- *		reg_addr	- Axi register from where the data will be read
- *		reg_data	- Pointer where the data will be stored
- *
- * @return			- This function allways returns SUCCESS
- *
- ******************************************************************************/
+/**
+ * @brief Read the axi registers of the SPI Engine.
+ * 
+ * @param desc Spi engine descriptor extra parameters
+ * @param reg_addr Axi register from where the data will be read
+ * @param reg_data Pointer where the data will be stored
+ * @return int32_t This function allways returns SUCCESS
+ */
 int32_t spi_eng_read(spi_desc_extra *desc,
 		     uint32_t reg_addr,
 		     uint32_t *reg_data)
@@ -111,20 +95,14 @@ int32_t spi_eng_read(spi_desc_extra *desc,
 	return SUCCESS;
 }
 
-/*******************************************************************************
- *
- * @func	spi_eng_dma_write
- *
- * @brief	Write the axi registers of the DMA inside the SPI Engine.
- *
- * @params
- *		desc		- Spi engine descriptor extra parameters
- *		reg_addr	- Axi register where the data will be written
- *		reg_data	- Data that will be written
- *
- * @return			- This function allways returns SUCCESS
- *
- ******************************************************************************/
+/**
+ * @brief Write the axi registers of the DMA inside the SPI Engine.
+ * 
+ * @param desc Spi engine descriptor extra parameters
+ * @param reg_addr Axi register where the data will be written
+ * @param reg_data Data that will be written
+ * @return int32_t This function allways returns SUCCESS
+ */
 int32_t spi_eng_dma_write(spi_desc_extra *desc,
 			  uint32_t reg_addr,
 			  uint32_t reg_data)
@@ -134,20 +112,14 @@ int32_t spi_eng_dma_write(spi_desc_extra *desc,
 	return SUCCESS;
 }
 
-/*******************************************************************************
- *
- * @func	spi_eng_dma_read
- *
- * @brief	Read the axi registers of the DMA inside the SPI Engine.
- *
- * @params
- *		desc		- Spi engine descriptor extra parameters
- *		reg_addr	- Axi register from where the data will be read
- *		reg_data	- Pointer where the data will be stored
- *
- * @return			- This function allways returns SUCCESS
- *
- ******************************************************************************/
+/**
+ * @brief Read the axi registers of the DMA inside the SPI Engine.
+ * 
+ * @param desc Spi engine descriptor extra parameters
+ * @param reg_addr Axi register from where the data will be read
+ * @param reg_data Pointer where the data will be stored
+ * @return int32_t This function allways returns SUCCESS
+ */
 int32_t spi_eng_dma_read(spi_desc_extra *desc,
 			 uint32_t reg_addr,
 			 uint32_t *reg_data)
@@ -157,19 +129,12 @@ int32_t spi_eng_dma_read(spi_desc_extra *desc,
 	return SUCCESS;
 }
 
-/*******************************************************************************
- *
- * @func	spi_set_transfer_length
- *
- * @brief	Sets the length of one WORD used in the spi transfer.
- *
- * @params
- *		desc		- Spi engine descriptor
- *		data_length	- The desired data length
- *
- * @return	void
- *
- ******************************************************************************/
+/**
+ * @brief Sets the length of one WORD used in the spi transfer.
+ * 
+ * @param desc Spi engine descriptor
+ * @param data_length The desired data length
+ */
 void spi_set_transfer_length(spi_desc *desc, uint8_t data_length)
 {
 	spi_desc_extra	*desc_extra;
@@ -183,21 +148,15 @@ void spi_set_transfer_length(spi_desc *desc, uint8_t data_length)
 	}
 }
 
-/*******************************************************************************
- *
- * @func	spi_get_words_number
- *
- * @brief	Used to convert bytes in spi engine WORDS based on the system
+/**
+ * @brief Used to convert bytes in spi engine WORDS based on the system
  *		configuration.
- *
- * @params
- *		desc		- Spi engine descriptor extra parameters
- *		bytes_number	- The number of bytes to be cnoverted
- *
- * @return	words_number	- A number of words in which bytes_number can
- *				be grouped
- *
- ******************************************************************************/
+ * 
+ * @param desc Spi engine descriptor extra parameters
+ * @param bytes_number The number of bytes to be cnoverted
+ * @return uint8_t A number of words in which bytes_number can
+ *		   be grouped
+ */
 uint8_t spi_get_words_number(spi_desc_extra *desc, uint8_t bytes_number)
 {
 	uint8_t xfer_word_len;
@@ -212,39 +171,27 @@ uint8_t spi_get_words_number(spi_desc_extra *desc, uint8_t bytes_number)
 	return words_number;
 }
 
-/*******************************************************************************
- *
- * @func	spi_get_word_lenght
- *
- * @brief	Get the word lenght in bytes.
- *
- * @params
- *		desc		- Spi engine descriptor extra parameters
- *
- * @return			- Number of bytes that fit in one word
- *
- ******************************************************************************/
+/**
+ * @brief Get the word lenght in bytes.
+ * 
+ * @param desc Spi engine descriptor extra parameters
+ * @return uint8_t Number of bytes that fit in one word
+ */
 uint8_t spi_get_word_lenght(spi_desc_extra *desc)
 {
 	return desc->data_width / 8;
 }
 
-/*******************************************************************************
- *
- * @func	spi_check_dma_config
- *
- * @brief	Check if both tx and rx channels of the DMA are enabled while
+/**
+ * @brief Check if both tx and rx channels of the DMA are enabled while
  *		offload mode is cnofigured.
- *
- * @params
- *		desc		- Spi engine descriptor extra parameters
- *		rx		- Offload flag for rx channel
- *		tx		- Offload flag for tx channel
- *
- * @return			- SUCCESS if both channels are configured
- *				- FAILURE if contrary
- *
- ******************************************************************************/
+ * 
+ * @param desc Spi engine descriptor extra parameters
+ * @param rx Offload flag for rx channel
+ * @param tx Offload flag for tx channel
+ * @return int32_t SUCCESS if both channels are configured
+ *		   FAILURE if contrary
+ */
 int32_t spi_check_dma_config(spi_desc_extra *desc,
 			     uint8_t rx,
 			     uint8_t tx)
@@ -260,22 +207,15 @@ int32_t spi_check_dma_config(spi_desc_extra *desc,
 	return SUCCESS;
 }
 
-/*******************************************************************************
- *
- * @func	spi_get_sleep_div
- *
- * @brief	This function computes the prescaler used to set the sleep
+/**
+ * @brief This function computes the prescaler used to set the sleep
  *		period.
- *
- * @params
- *		desc		- Spi engine descriptor
- *		sleep_time_ns	- Offload flag for rx channel
- *		sleep_div	- Pointer where the computed value
- * 				will be written
- *
- * @return			- This function allways returns SUCCESS
- *
- ******************************************************************************/
+ * 
+ * @param desc Spi engine descriptor
+ * @param sleep_time_ns Desired time unit in nanoseconds
+ * @param sleep_div Sleep divider
+ * @return int32_t This function allways returns SUCCESS
+ */
 int32_t spi_get_sleep_div(spi_desc *desc,
 			  uint32_t sleep_time_ns,
 			  uint32_t *sleep_div)
@@ -298,19 +238,12 @@ int32_t spi_get_sleep_div(spi_desc *desc,
 	return SUCCESS;
 }
 
-/*******************************************************************************
- *
- * @func	spi_eng_program_add_cmd
- *
- * @brief	Add a command to the CMD_FIFO buffer
- *
- * @params
- *		xfer		- Fifo transfer structure
- *		cmd		- The command that will be added to the buffer
- *
- * @return	void
- *
- ******************************************************************************/
+/**
+ * @brief Add a command to the CMD_FIFO buffer
+ * 
+ * @param xfer Fifo transfer structure
+ * @param cmd The command that will be added to the buffer
+ */
 void spi_eng_program_add_cmd(spi_eng_transfer_fifo *xfer,
 			     uint16_t cmd)
 {
@@ -318,22 +251,16 @@ void spi_eng_program_add_cmd(spi_eng_transfer_fifo *xfer,
 	xfer->cmd_fifo_len++;
 }
 
-/*******************************************************************************
- *
- * @func	spi_eng_gen_transfer
- *
- * @brief	Initiate an spi transfer.
- *
- * @params
- *		desc		- Spi engine descriptor extra parameters
- *		xfer		- Fifo transfer structure
- *		write		- Write transaction flag
- *		read		- Read transaction flag
- *		bytes_number	- Number of bytes to transfer
- *
- * @return			- This function allways returns SUCCESS
- *
- ******************************************************************************/
+/**
+ * @brief Initiate an spi transfer.
+ * 
+ * @param desc Spi engine descriptor extra parameters
+ * @param xfer Fifo transfer structure
+ * @param write Write transaction flag
+ * @param read Read transaction flag
+ * @param bytes_number Number of bytes to transfer
+ * @return int32_t This function allways returns SUCCESS
+ */
 int32_t spi_eng_gen_transfer(spi_desc_extra *desc,
 			     spi_eng_transfer_fifo *xfer,
 			     bool write,
@@ -356,20 +283,13 @@ int32_t spi_eng_gen_transfer(spi_desc_extra *desc,
 	return SUCCESS;
 }
 
-/*******************************************************************************
- *
- * @func	spi_eng_gen_cs
- *
- * @brief	Change the state of the chip select port
- *
- * @params
- *		desc		- Spi engine descriptor
- *		xfer		- Fifo transfer structure
- *		assert		- Switch HIGH/LOW the chip select
- *
- * @return	void
- *
- ******************************************************************************/
+/**
+ * @brief Change the state of the chip select port.
+ * 
+ * @param desc Spi engine descriptor
+ * @param xfer Fifo transfer structure
+ * @param assert Switch HIGH/LOW the chip select
+ */
 void spi_eng_gen_cs(spi_desc *desc,
 		    spi_eng_transfer_fifo *xfer,
 		    bool assert)
@@ -387,20 +307,13 @@ void spi_eng_gen_cs(spi_desc *desc,
 				SPI_ENGINE_CMD_ASSERT(desc_extra->cs_delay, mask));
 }
 
-/*******************************************************************************
- *
- * @func	spi_gen_sleep_ns
- *
- * @brief	Add a delay bewtheen the engine commands
- *
- * @params
- *		desc		- Spi engine descriptor
- *		xfer		- Fifo transfer structure
- *		sleep_time_ns	- Number of nanoseconds
- *
- * @return	void
- *
- ******************************************************************************/
+/**
+ * @brief Add a delay bewtheen the engine commands
+ * 
+ * @param desc Spi engine descriptor
+ * @param xfer Fifo transfer structure
+ * @param sleep_time_ns Number of nanoseconds
+ */
 void spi_gen_sleep_ns(spi_desc *desc,
 		      spi_eng_transfer_fifo *xfer,
 		      uint32_t sleep_time_ns)
@@ -413,20 +326,13 @@ void spi_gen_sleep_ns(spi_desc *desc,
 				SPI_ENGINE_CMD_SLEEP(sleep_div));
 }
 
-/*******************************************************************************
- *
- * @func	spi_eng_add_user_cmd
- *
- * @brief	Spi engine command interpreter
- *
- * @params
- *		desc		- Spi engine descriptor
- *		xfer		- Fifo transfer structure
- *		cmd		- Command to send to the engine
- *
- * @return	void
- *
- ******************************************************************************/
+/**
+ * @brief Spi engine command interpreter
+ * 
+ * @param desc Spi engine descriptor
+ * @param xfer Fifo transfer structure
+ * @param cmd User defined command
+ */
 void spi_eng_add_user_cmd(spi_desc *desc,
 			  spi_eng_transfer_fifo *xfer,
 			  uint32_t cmd)
@@ -502,20 +408,14 @@ void spi_eng_add_user_cmd(spi_desc *desc,
 	}
 }
 
-/*******************************************************************************
- *
- * @func	spi_eng_compile_message
- *
- * @brief	Prepare the command queue before sending it to the engine
- *
- * @params
- *		desc		- Spi engine descriptor
- *		msg		- Structure used to store the messages
- *		xfer		- Fifo transfer structure
- *
- * @return			- This function allways returns SUCCESS
- *
- ******************************************************************************/
+/**
+ * @brief Prepare the command queue before sending it to the engine
+ * 
+ * @param desc Spi engine descriptor
+ * @param msg Structure used to store the messages
+ * @param xfer Fifo transfer structure
+ * @return int32_t This function allways returns SUCCESS
+ */
 int32_t spi_eng_compile_message(spi_desc *desc,
 				spi_eng_msg *msg,
 				spi_eng_transfer_fifo *xfer)
@@ -562,20 +462,14 @@ int32_t spi_eng_compile_message(spi_desc *desc,
 	return SUCCESS;
 }
 
-/*******************************************************************************
- *
- * @func	spi_eng_transfer_message
- *
- * @brief	Initiate a spi transfer
- *
- * @params
- *		desc		- Spi engine descriptor
- *		msg		- Structure used to store the messages
- *
- * @return			- SUCCESS if the transfer finished
- *				- FAILURE if the memory allocation failed
- *
- ******************************************************************************/
+/**
+ * @brief Initiate a spi transfer
+ * 
+ * @param desc Spi engine descriptor
+ * @param msg Structure used to store the messages
+ * @return int32_t SUCCESS if the transfer finished
+ *		   FAILURE if the memory allocation failed
+ */
 int32_t spi_eng_transfer_message(spi_desc *desc, spi_eng_msg *msg)
 {
 	uint32_t	size;
@@ -626,20 +520,14 @@ int32_t spi_eng_transfer_message(spi_desc *desc, spi_eng_msg *msg)
 	return SUCCESS;
 }
 
-/*******************************************************************************
+/**
+ * @brief Initialize the spi engine
  *
- * @func	spi_init
- *
- * @brief	Initialize the spi engine
- *
- * @params
- *		desc		- Spi engine descriptor
- *		param		- Structure containing the spi init parameters
- *
- * @return			- SUCCESS if the transfer finished
- *				- FAILURE if the memory allocation failed
- *
- ******************************************************************************/
+ * @param desc Spi engine descriptor
+ * @param param Structure containing the spi init parameters
+ * @return int32_t SUCCESS if the transfer finished
+ *		   FAILURE if the memory allocation failed
+ */
 int32_t spi_init(struct spi_desc **desc,
 		 const struct spi_init_param *param)
 {
@@ -701,23 +589,15 @@ int32_t spi_init(struct spi_desc **desc,
 	return SUCCESS;
 }
 
-/*******************************************************************************
- *
- * @func	spi_write_and_read
- *
- * @brief	Write/read on the spi interface
- *
- * @params
- *		desc		- Spi engine descriptor
- *		data		- Pointer to data buffer
- *		bytes_number	- Number of bytes to transfer
- *
-
- * @return			- SUCCESS if the transfer finished
- *				- FAILURE if the memory allocation
- *				or transfer failed
- *
- ******************************************************************************/
+/**
+ * @brief Write/read on the spi interface
+ * 
+ * @param desc Spi engine descriptor
+ * @param data Pointer to data buffer
+ * @param bytes_number Number of bytes to transfer
+ * @return int32_t SUCCESS if the transfer finished
+ *		   FAILURE if the memory allocation or transfer failed
+ */
 int32_t spi_write_and_read(spi_desc *desc,
 			   uint8_t *data,
 			   uint8_t bytes_number)
@@ -778,19 +658,14 @@ int32_t spi_write_and_read(spi_desc *desc,
 	return ret;
 }
 
-/*******************************************************************************
- *
- * @func	spi_eng_offload_load_msg
- *
- * @brief	Prepare the command queue of the offload mode
- *
- * @params
- *		desc		- Spi engine descriptor
- *		msg		- Structure used to store the messages
- *
- * @return
- *
- ******************************************************************************/
+/**
+ * @brief Prepare the command queue of the offload mode
+ * 
+ * @param desc Spi engine descriptor
+ * @param msg Structure used to store the messages
+ * @return int32_t SUCCESS if the message successfully loaded
+ *		   FAILURE if the message failed to load
+ */
 int32_t spi_eng_offload_load_msg(spi_desc *desc, spi_eng_msg *msg)
 {
 	uint32_t 		i;
@@ -836,20 +711,14 @@ int32_t spi_eng_offload_load_msg(spi_desc *desc, spi_eng_msg *msg)
 	return SUCCESS;
 }
 
-/*******************************************************************************
- *
- * @func	spi_eng_transfer_multiple_msgs
- *
- * @brief	Initiate an offload transfer
- *
- * @params
- *		desc		- Spi engine descriptor
- *		no_of_messages	- Number of messages to send in offload mode
- *
- * @return			- SUCCESS if the transfer finished
- *				- FAILURE the offload mode isn't configured
- *
- ******************************************************************************/
+/**
+ * @brief Initiate an offload transfer
+ * 
+ * @param desc Spi engine descriptor
+ * @param no_of_messages Number of messages to send in offload mode
+ * @return int32_t SUCCESS if the transfer finished
+ *		   FAILURE the offload mode isn't configured
+ */
 int32_t spi_eng_transfer_multiple_msgs(spi_desc *desc, uint32_t no_of_messages)
 {
 	uint8_t alignment;
@@ -907,18 +776,12 @@ int32_t spi_eng_transfer_multiple_msgs(spi_desc *desc, uint32_t no_of_messages)
 	return SUCCESS;
 }
 
-/*******************************************************************************
- *
- * @func	spi_remove
- *
- * @brief	Free the resources allocated by spi_init().
- *
- * @params
- *		desc		- Spi engine descriptor extra parameters
- *
- * @return			- This function allways returns SUCCESS
- *
- ******************************************************************************/
+/**
+ * @brief Free the resources allocated by spi_init().
+ * 
+ * @param desc Spi engine descriptor extra parameters
+ * @return int32_t This function allways returns SUCCESS
+ */
 int32_t spi_remove(spi_desc *desc)
 {
 	free(desc->extra);
