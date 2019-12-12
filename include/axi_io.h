@@ -50,10 +50,23 @@
 /************************ Functions Declarations ******************************/
 /******************************************************************************/
 
-/* AXI IO Read data */
+/**
+ * @brief AXI IO read function.
+ * @param base - Base address
+ * @param offset - Address offset
+ * @param data - variable where returned data is stored
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
 int32_t axi_io_read(uint32_t base, uint32_t offset, uint32_t *data);
 
-/* AXI IO Write data */
+
+/**
+ * @brief AXI IO write function.
+ * @param base - Base address
+ * @param offset - Address offset
+ * @param data - data to be written.
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
 int32_t axi_io_write(uint32_t base, uint32_t offset, uint32_t data);
 
 #endif // AXI_IO_H_
