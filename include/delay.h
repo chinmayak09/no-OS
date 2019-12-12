@@ -49,10 +49,18 @@
 /************************ Functions Declarations ******************************/
 /******************************************************************************/
 
-/* Generate microseconds delay. */
+/**
+ * @brief Generate microseconds delay.
+ * @param usecs - Delay in microseconds.
+ * @return None.
+ */
 void udelay(uint32_t usecs);
 
-/* Generate miliseconds delay. */
+/**
+ * @brief Generate miliseconds delay.
+ * @param msecs - Delay in miliseconds.
+ * @return None.
+ */
 void mdelay(uint32_t msecs);
 
 #endif // DELAY_H_
