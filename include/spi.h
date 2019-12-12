@@ -56,6 +56,14 @@
 /*************************** Types Declarations *******************************/
 /******************************************************************************/
 
+/**
+ * @enum spi_mode 
+ * @brief SPI configuration for clock phase and polarity
+ * 	SPI_MODE0 - Data sampled on rising edge and shifted out on falling edge
+ *	SPI_MODE1 - Data sampled on falling edge and shifted out on rising edge
+ *	SPI_MODE2 - Data sampled on falling edge and shifted out on rising edge
+ *	SPI_MODE3 - Data sampled on rising edge and shifted out on falling edge
+ */
 typedef enum spi_mode {
 	SPI_MODE_0 = (0 | 0),
 	SPI_MODE_1 = (0 | SPI_CPHA),
@@ -63,6 +71,14 @@ typedef enum spi_mode {
 	SPI_MODE_3 = (SPI_CPOL | SPI_CPHA)
 } spi_mode;
 
+/**
+ * @struct spi_init_param
+ * @brief Structure holding the parameters for SPI initialization:
+ * 	max_speed_hz - SPI maximum transfer speed supported
+ * 	chip_select - SPI chip select
+ *	spi_mode - SPI mode
+ *	extra - SPI extra parameters (device specific parameters)
+ */
 typedef struct spi_init_param {
 	uint32_t	max_speed_hz;
 	uint8_t		chip_select;
@@ -70,6 +86,14 @@ typedef struct spi_init_param {
 	void		*extra;
 } spi_init_param;
 
+/**
+ * @struct spi_desc
+ * @brief Structure holding SPI descriptor:
+ * 	max_speed_hz - SPI maximum transfer speed supported
+ * 	chip_select - SPI chip select
+ *	spi_mode - SPI mode
+ *	extra - SPI extra parameters (device specific parameters)
+ */
 typedef struct spi_desc {
 	uint32_t	max_speed_hz;
 	uint8_t		chip_select;
@@ -81,14 +105,29 @@ typedef struct spi_desc {
 /************************ Functions Declarations ******************************/
 /******************************************************************************/
 
-/* Initialize the SPI communication peripheral. */
+/**
+ * @brief Initialize the SPI communication peripheral.
+ * @param desc - The SPI descriptor.
+ * @param init_param - The structure that contains the SPI parameters.
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
 int32_t spi_init(struct spi_desc **desc,
 		 const struct spi_init_param *param);
 
-/* Free the resources allocated by spi_init(). */
+/**
+ * @brief Free the resources allocated by spi_init().
+ * @param desc - The SPI descriptor.
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
 int32_t spi_remove(struct spi_desc *desc);
 
-/* Write and read data to/from SPI. */
+/**
+ * @brief Write and read data to/from SPI.
+ * @param desc - The SPI descriptor.
+ * @param data - The buffer with the transmitted/received data.
+ * @param bytes_number - Number of bytes to write/read.
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
 int32_t spi_write_and_read(struct spi_desc *desc,
 			   uint8_t *data,
 			   uint16_t bytes_number);
