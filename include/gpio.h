@@ -59,11 +59,23 @@
 /*************************** Types Declarations *******************************/
 /******************************************************************************/
 
+/**
+ * @struct gpio_init_param
+ * @brief Structure holding the parameters for GPIO initialization:
+ * 	number - GPIO number
+ *	extra - GPIO extra parameters (device specific parameters)
+ */
 typedef struct gpio_init_param {
 	uint8_t		number;
 	void		*extra;
 } gpio_init_param;
 
+/**
+ * @struct gpio_desc
+ * @brief Structure holding GPIO descriptor:
+ *	number - GPIO number
+ *	extra - SPI extra parameters (device specific parameters)
+ */
 typedef struct gpio_desc {
 	uint8_t		number;
 	void		*extra;
@@ -73,29 +85,70 @@ typedef struct gpio_desc {
 /************************ Functions Declarations ******************************/
 /******************************************************************************/
 
-/* Obtain the GPIO decriptor. */
+/**
+ * @brief Prepare the GPIO decriptor.
+ * @param desc - The GPIO descriptor.
+ * @param init_param - The structure that contains the GPIO parameters.
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
 int32_t gpio_get(struct gpio_desc **desc,
 		 const struct gpio_init_param *param);
 
-/* Free the resources allocated by gpio_get() */
+/**
+ * @brief Free the resources allocated by gpio_get().
+ * @param desc - The SPI descriptor.
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
 int32_t gpio_remove(struct gpio_desc *desc);
 
-/* Enable the input direction of the specified GPIO. */
+/**
+ * @brief Enable the input direction of the specified GPIO.
+ * @param desc - The GPIO descriptor.
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
 int32_t gpio_direction_input(struct gpio_desc *desc);
 
-/* Enable the output direction of the specified GPIO. */
+/**
+ * @brief Enable the output direction of the specified GPIO.
+ * @param desc - The GPIO descriptor.
+ * @param value - The value.
+ *                Example: GPIO_HIGH
+ *                         GPIO_LOW
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
 int32_t gpio_direction_output(struct gpio_desc *desc,
 			      uint8_t value);
 
-/* Get the direction of the specified GPIO. */
+/**
+ * @brief Get the direction of the specified GPIO.
+ * @param desc - The GPIO descriptor.
+ * @param direction - The direction.
+ *                    Example: GPIO_OUT
+ *                             GPIO_IN
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
 int32_t gpio_get_direction(struct gpio_desc *desc,
 			   uint8_t *direction);
 
-/* Set the value of the specified GPIO. */
+/**
+ * @brief Set the value of the specified GPIO.
+ * @param desc - The GPIO descriptor.
+ * @param value - The value.
+ *                Example: GPIO_HIGH
+ *                         GPIO_LOW
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
 int32_t gpio_set_value(struct gpio_desc *desc,
 		       uint8_t value);
 
-/* Get the value of the specified GPIO. */
+/**
+ * @brief Get the value of the specified GPIO.
+ * @param desc - The GPIO descriptor.
+ * @param value - The value.
+ *                Example: GPIO_HIGH
+ *                         GPIO_LOW
+ * @return SUCCESS in case of success, FAILURE otherwise.
+ */
 int32_t gpio_get_value(struct gpio_desc *desc,
 		       uint8_t *value);
 
