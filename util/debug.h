@@ -1,7 +1,7 @@
 /*******************************************************************************
- *   @file   xilinx/spi_extra.h
- *   @brief  Header containing extra types used in the spi driver.
- *   @author scuciurean (sergiu.cuciurean@analog.com)
+ *   @file   debuh.h
+ *   @brief  A debug of debug functions
+ *   @author Sergiu Cuciurean (sergiu.cuciurean@analog.com)
 ********************************************************************************
  * Copyright 2019(c) Analog Devices, Inc.
  *
@@ -35,44 +35,69 @@
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*******************************************************************************/
-#ifndef SPI_EXTRA_H_
-#define SPI_EXTRA_H_
+ ******************************************************************************/
+
+#ifndef DEBUG_H_
+#define DEBUG_H_
 
 /******************************************************************************/
 /***************************** Include Files **********************************/
 /******************************************************************************/
 
-#include <stdint.h>
+#include <stdio.h>
 
-/******************************************************************************/
-/********************** Macros and Constants Definitions **********************/
-/******************************************************************************/
 
-#define SPI_CS_DECODE		0x01
-#define SPI_DEASSERT_CURRENT_SS	0x0F
+/**
+ * @brief Macro used to print debug messages
+ * 
+ */
+#ifdef DEBUG_LEVEL
+#define dev_dbg(dev, format, ...){		\
+	if (DEBUG_LEVEL >= 3){			\
+		printf("%s : ", #dev);		\
+		printf("%s : ", __func__);	\
+		printf(format, ## __VA_ARGS__);	\
+		printf("\n");			\
+		}				\
+	}
+#else
+#define dev_dbg(dev, format, ...){}
+#endif
 
-/******************************************************************************/
-/*************************** Types Declarations *******************************/
-/******************************************************************************/
 
-enum xil_spi_type {
-	SPI_PL,
-	SPI_PS,
-	SPI_ENGINE
-} xil_spi_type;
 
-typedef struct xil_spi_init_param {
-	enum xil_spi_type	type;
-	uint32_t		flags;
-	uint32_t		device_id;
-} xil_spi_init_param;
+/**
+ * @brief Macro used to print debug errors
+ * 
+ */
+#ifdef DEBUG_LEVEL
+#define dev_err(dev, format, ...){		\
+	if (DEBUG_LEVEL >= 2){			\
+		printf("%s : ", #dev);		\
+		printf("%s : ", __func__);	\
+		printf(format, ## __VA_ARGS__);	\
+		printf("\n");			\
+		}				\
+	}
+#else
+#define dev_err(dev, format, ...){}
+#endif
 
-typedef struct xil_spi_desc {
-	enum xil_spi_type	type;
-	uint32_t		flags;
-	void			*config;
-	void			*instance;
-} xil_spi_desc;
+/**
+ * @brief Macro used to print device information
+ * 
+ */
+#ifdef DEBUG_LEVEL
+#define dev_info(dev, format, ...){		\
+	if (DEBUG_LEVEL >= 1){			\
+		printf("%s : ", #dev);		\
+		printf("%s : ", __func__);	\
+		printf(format, ## __VA_ARGS__);	\
+		printf("\n");			\
+		}				\
+	}
+#else
+#define dev_info(dev, format, ...){}
+#endif
 
-#endif // SPI_EXTRA_H_
+#endif // DEBUG_H_

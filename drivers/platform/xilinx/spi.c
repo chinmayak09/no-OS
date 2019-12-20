@@ -54,10 +54,98 @@
 #include "error.h"
 #include "spi.h"
 #include "spi_extra.h"
+#include "spi_engine.h"
+#include "spi_engine_extra.h"
 
 /******************************************************************************/
 /************************ Functions Definitions *******************************/
 /******************************************************************************/
+
+int32_t spi_init_pl(struct xil_spi_desc *xdesc,
+		    struct xil_spi_init_param *xinit)
+{
+#ifdef XSPI_H
+	int32_t ret;
+
+	desc->instance = (XSpi*)malloc(sizeof(XSpi));
+	if(!desc->instance)
+		goto pl_error;
+
+	xdesc->config = XSpi_LookupConfig(xinit->device_id);
+	if(xdesc->config == NULL)
+		goto pl_error;
+
+	ret = XSpi_CfgInitialize(xdesc->instance,
+					xdesc->config,
+					((XSpi_Config*)xdesc->config)
+					->BaseAddress);
+	if(ret != SUCCESS)
+		goto pl_error;
+
+	ret = XSpi_Initialize(xdesc->instance, xinit->device_id);
+	if (ret != 0)
+		goto pl_error;
+
+	ret = XSpi_SetOptions(xdesc->instance,
+				XSP_MASTER_OPTION |
+				((sdesc->mode & SPI_CPOL) ?
+				XSP_CLK_ACTIVE_LOW_OPTION : 0) |
+				((sdesc->mode & SPI_CPHA) ?
+				XSP_CLK_PHASE_1_OPTION : 0));
+	if (ret != 0)
+		goto pl_error;
+
+	ret = XSpi_Start(xdesc->instance);
+	if (ret != 0)
+		goto pl_error;
+
+	XSpi_IntrGlobalDisable((XSpi *)(xdesc->instance));
+
+	return SUCCESS;
+
+pl_error:
+	free(xdesc->instance);
+#endif
+	free(xdesc);
+
+	return FAILURE;
+}
+
+int32_t spi_init_ps(struct xil_spi_desc *xdesc,
+		    struct xil_spi_init_param *xinit)
+{
+#ifdef XSPIPS_H
+	int32_t ret;
+
+	xdesc->instance = (XSpiPs*)malloc(sizeof(XSpiPs));
+	if(!xdesc->instance)
+		goto ps_error;
+
+	xdesc->config = XSpiPs_LookupConfig(xinit->device_id);
+	if(xdesc->config == NULL)
+		goto ps_error;
+
+	ret = XSpiPs_CfgInitialize(xdesc->instance,
+					xdesc->config,
+					((XSpiPs_Config*)xdesc->config)
+					->BaseAddress);
+	if(ret != SUCCESS)
+		goto ps_error;
+
+	ret = XSpiPs_SetClkPrescaler(xdesc->instance,
+					XSPIPS_CLK_PRESCALE_64);
+	if(ret != SUCCESS)
+		goto ps_error;
+
+	return SUCCESS;
+
+ps_error:
+	free(xdesc->instance);
+#endif
+	free(xdesc);
+
+	return FAILURE;
+}
 
 /**
  * @brief Initialize the SPI communication peripheral.
@@ -70,116 +158,85 @@ int32_t spi_init(struct spi_desc **desc,
 {
 	int32_t				ret;
 	struct spi_desc			*sdesc;
-	struct xil_spi_desc		*xdesc;
+	struct xil_spi_desc 		*xdesc;
 	struct xil_spi_init_param	*xinit;
+	struct spi_engine_desc 		*edesc;
+	struct spi_engine_init_param	*einit;
+	enum xil_spi_type		*spi_type;
 
-	sdesc = (struct spi_desc *)malloc(sizeof(*sdesc));
-	xdesc = (struct xil_spi_desc *)malloc(sizeof(*xdesc));
-	if(!sdesc || !xdesc) {
+	sdesc = malloc(sizeof(*sdesc));
+	if(!sdesc)
+	{
 		free(sdesc);
-		free(xdesc);
 		return FAILURE;
 	}
 
-	sdesc->max_speed_hz = param->max_speed_hz;
-	sdesc->chip_select = param->chip_select;
-	sdesc->mode = param->mode;
-	xinit = param->extra;
+	/* Get only the first member of the sctructure
+	 * Both structures (spi_engine_init_param and spi_init_param)
+	 * have the fisrt member enum xil_spi_type so in this case
+	 * we can read the first member without casting the pointer to
+	 * a certain structure type.
+	*/
+	spi_type = param->extra;
 
-	xdesc->type = xinit->type;
-	xdesc->flags = xinit->flags;
-	sdesc->extra = xdesc;
+	if (*spi_type == SPI_ENGINE)
+	{
+		edesc = malloc(sizeof(spi_engine_desc));
+		if(!edesc)
+		{
+			free(edesc);
+			return FAILURE;
+		}
 
-	switch (xinit->type) {
+		einit = param->extra;
+		edesc->spi_engine_baseaddr = einit->spi_engine_baseaddr;
+		edesc->cs_delay = einit->cs_delay;
+		sdesc->extra = edesc;	}
+	else
+	{
+		xdesc = malloc(sizeof(xil_spi_desc));
+		if(!xdesc)
+		{
+			free(xdesc);
+			return FAILURE;
+		}
+
+		xinit = param->extra;
+		xdesc->type = xinit->type;
+		xdesc->flags = xinit->flags;
+		sdesc->extra = xdesc;
+
+	}
+
+	switch (*spi_type) {
 	case SPI_PL:
-#ifdef XSPI_H
-		xdesc->instance = (XSpi*)malloc(sizeof(XSpi));
-		if(!xdesc->instance)
-			goto pl_error;
-
-		xdesc->config = XSpi_LookupConfig(xinit->device_id);
-		if(xdesc->config == NULL)
-			goto pl_error;
-
-		ret = XSpi_CfgInitialize(xdesc->instance,
-					 xdesc->config,
-					 ((XSpi_Config*)xdesc->config)
-					 ->BaseAddress);
-		if(ret != SUCCESS)
-			goto pl_error;
-
-		ret = XSpi_Initialize(xdesc->instance, xinit->device_id);
-		if (ret != 0)
-			goto pl_error;
-
-		ret = XSpi_SetOptions(xdesc->instance,
-				      XSP_MASTER_OPTION |
-				      ((sdesc->mode & SPI_CPOL) ?
-				       XSP_CLK_ACTIVE_LOW_OPTION : 0) |
-				      ((sdesc->mode & SPI_CPHA) ?
-				       XSP_CLK_PHASE_1_OPTION : 0));
-		if (ret != 0)
-			goto pl_error;
-
-		ret = XSpi_Start(xdesc->instance);
-		if (ret != 0)
-			goto pl_error;
-
-		XSpi_IntrGlobalDisable((XSpi *)(xdesc->instance));
-
+		ret = spi_init_pl(xdesc, xinit);
 		break;
-pl_error:
-		free(xdesc->instance);
-#endif
-		goto error;
 	case SPI_PS:
-#ifdef XSPIPS_H
-		xdesc->instance = (XSpiPs*)malloc(sizeof(XSpiPs));
-		if(!xdesc->instance)
-			goto ps_error;
-
-		xdesc->config = XSpiPs_LookupConfig(xinit->device_id);
-		if(xdesc->config == NULL)
-			goto ps_error;
-
-		ret = XSpiPs_CfgInitialize(xdesc->instance,
-					   xdesc->config,
-					   ((XSpiPs_Config*)xdesc->config)
-					   ->BaseAddress);
-		if(ret != SUCCESS)
-			goto ps_error;
-
-		ret = XSpiPs_SetClkPrescaler(xdesc->instance,
-					     XSPIPS_CLK_PRESCALE_64);
-		if(ret != SUCCESS)
-			goto ps_error;
-
+		ret = spi_init_ps(xdesc, xinit);
 		break;
-ps_error:
-		free(xdesc->instance);
-#endif
-		goto error;
+
 	case SPI_ENGINE:
 #ifdef SPI_ENGINE_H
-		//TODO: Implement SPI engine feature
-
+		spi_engine_init(desc, param);
 		break;
 #endif
 
 	default:
-		goto error;
+		ret = FAILURE;
 		break;
 	}
 
 	*desc = sdesc;
 
+	if (ret != SUCCESS)
+	{
+		free(sdesc);
+
+		return FAILURE;
+	}	
+
 	return SUCCESS;
-
-error:
-	free(sdesc);
-	free(xdesc);
-
-	return FAILURE;
 }
 
 /**
@@ -189,42 +246,42 @@ error:
  */
 int32_t spi_remove(struct spi_desc *desc)
 {
-#ifdef XSPI_H
-	int32_t				ret;
-#endif
-	struct xil_spi_desc	*xdesc;
+// #ifdef XSPI_H
+// 	int32_t				ret;
+// #endif
+// 	struct xil_spi_desc	*xdesc;
 
-	xdesc = desc->extra;
+// 	xdesc = desc->extra;
 
-	switch (xdesc->type) {
-	case SPI_PL:
-#ifdef XSPI_H
-		ret = XSpi_Stop((XSpi *)(xdesc->instance));
-		if(ret != SUCCESS)
-			goto error;
-#endif
-		break;
-	case SPI_PS:
-#ifdef XSPIPS_H
+// 	switch (xdesc->type) {
+// 	case SPI_PL:
+// #ifdef XSPI_H
+// 		ret = XSpi_Stop((XSpi *)(xdesc->instance));
+// 		if(ret != SUCCESS)
+// 			goto error;
+// #endif
+// 		break;
+// 	case SPI_PS:
+// #ifdef XSPIPS_H
 
-#endif
-		break;
-	case SPI_ENGINE:
-#ifdef SPI_ENGINE_H
+// #endif
+// 		break;
+// 	case SPI_ENGINE:
+// #ifdef SPI_ENGINE_H
 
-#endif
-		/* Intended fallthrough */
-#ifdef XSPI_H
-error:
-#endif
-	default:
-		return FAILURE;
-		break;
-	}
+// #endif
+// 		/* Intended fallthrough */
+// #ifdef XSPI_H
+// error:
+// #endif
+// 	default:
+// 		return FAILURE;
+// 		break;
+// 	}
 
-	free(xdesc->instance);
-	free(desc->extra);
-	free(desc);
+// 	free(xdesc->instance);
+// 	free(desc->extra);
+// 	free(desc);
 
 	return SUCCESS;
 }
@@ -241,75 +298,75 @@ int32_t spi_write_and_read(struct spi_desc *desc,
 			   uint8_t *data,
 			   uint16_t bytes_number)
 {
-	int32_t			ret;
-	struct xil_spi_desc	*xdesc;
+// 	int32_t			ret;
+// 	struct xil_spi_desc	*xdesc;
 
-	xdesc = desc->extra;
+// 	xdesc = desc->extra;
 
-	switch (xdesc->type) {
-	case SPI_PL:
-#ifdef XSPI_H
-		ret = XSpi_SetOptions(xdesc->instance,
-				      XSP_MASTER_OPTION |
-				      ((desc->mode & SPI_CPOL) ?
-				       XSP_CLK_ACTIVE_LOW_OPTION : 0) |
-				      ((desc->mode & SPI_CPHA) ?
-				       XSP_CLK_PHASE_1_OPTION : 0));
-		if (ret != SUCCESS)
-			goto error;
+// 	switch (xdesc->type) {
+// 	case SPI_PL:
+// #ifdef XSPI_H
+// 		ret = XSpi_SetOptions(xdesc->instance,
+// 				      XSP_MASTER_OPTION |
+// 				      ((desc->mode & SPI_CPOL) ?
+// 				       XSP_CLK_ACTIVE_LOW_OPTION : 0) |
+// 				      ((desc->mode & SPI_CPHA) ?
+// 				       XSP_CLK_PHASE_1_OPTION : 0));
+// 		if (ret != SUCCESS)
+// 			goto error;
 
-		ret = XSpi_SetSlaveSelect(xdesc->instance,
-					  0x01 << desc->chip_select);
-		if (ret != SUCCESS)
-			goto error;
+// 		ret = XSpi_SetSlaveSelect(xdesc->instance,
+// 					  0x01 << desc->chip_select);
+// 		if (ret != SUCCESS)
+// 			goto error;
 
-		ret = XSpi_Transfer(xdesc->instance,
-				    data,
-				    data,
-				    bytes_number);
-		if (ret != SUCCESS)
-			goto error;
-#endif
-		break;
-	case SPI_PS:
-#ifdef XSPIPS_H
-		ret = XSpiPs_SetOptions(xdesc->instance,
-					XSPIPS_MASTER_OPTION |
-					((xdesc->flags & SPI_CS_DECODE) ?
-					 XSPIPS_DECODE_SSELECT_OPTION : 0) |
-					XSPIPS_FORCE_SSELECT_OPTION |
-					((desc->mode & SPI_CPOL) ?
-					 XSPIPS_CLK_ACTIVE_LOW_OPTION : 0) |
-					((desc->mode & SPI_CPHA) ?
-					 XSPIPS_CLK_PHASE_1_OPTION : 0));
-		if (ret != SUCCESS)
-			goto error;
+// 		ret = XSpi_Transfer(xdesc->instance,
+// 				    data,
+// 				    data,
+// 				    bytes_number);
+// 		if (ret != SUCCESS)
+// 			goto error;
+// #endif
+// 		break;
+// 	case SPI_PS:
+// #ifdef XSPIPS_H
+// 		ret = XSpiPs_SetOptions(xdesc->instance,
+// 					XSPIPS_MASTER_OPTION |
+// 					((xdesc->flags & SPI_CS_DECODE) ?
+// 					 XSPIPS_DECODE_SSELECT_OPTION : 0) |
+// 					XSPIPS_FORCE_SSELECT_OPTION |
+// 					((desc->mode & SPI_CPOL) ?
+// 					 XSPIPS_CLK_ACTIVE_LOW_OPTION : 0) |
+// 					((desc->mode & SPI_CPHA) ?
+// 					 XSPIPS_CLK_PHASE_1_OPTION : 0));
+// 		if (ret != SUCCESS)
+// 			goto error;
 
-		ret = XSpiPs_SetSlaveSelect(xdesc->instance,
-					    desc->chip_select);
-		if (ret != SUCCESS)
-			goto error;
-		ret = XSpiPs_PolledTransfer(xdesc->instance,
-					    data,
-					    data,
-					    bytes_number);
-		if (ret != SUCCESS)
-			goto error;
-		ret = XSpiPs_SetSlaveSelect(xdesc->instance, SPI_DEASSERT_CURRENT_SS);
-		if (ret != SUCCESS)
-			goto error;
-#endif
-		break;
-	case SPI_ENGINE:
-#ifdef SPI_ENGINE_H
+// 		ret = XSpiPs_SetSlaveSelect(xdesc->instance,
+// 					    desc->chip_select);
+// 		if (ret != SUCCESS)
+// 			goto error;
+// 		ret = XSpiPs_PolledTransfer(xdesc->instance,
+// 					    data,
+// 					    data,
+// 					    bytes_number);
+// 		if (ret != SUCCESS)
+// 			goto error;
+// 		ret = XSpiPs_SetSlaveSelect(xdesc->instance, SPI_DEASSERT_CURRENT_SS);
+// 		if (ret != SUCCESS)
+// 			goto error;
+// #endif
+// 		break;
+// 	case SPI_ENGINE:
+// #ifdef SPI_ENGINE_H
 
-#endif
-		/* Intended fallthrough */
-error:
-	default:
-		return FAILURE;
-		break;
-	}
+// #endif
+// 		/* Intended fallthrough */
+// error:
+// 	default:
+// 		return FAILURE;
+// 		break;
+// 	}
 
 	return SUCCESS;
 }

@@ -1,5 +1,5 @@
-/***************************************************************************//**
- *   @file   ad77681.c
+/*******************************************************************************
+ *   @file   ad7768-1.c
  *   @brief  Implementation of AD7768-1 Driver.
  *   @author SPopa (stefan.popa@analog.com)
 ********************************************************************************
@@ -44,11 +44,22 @@
 #include "stdlib.h"
 #include "stdbool.h"
 #include <string.h>
-#include "ad77681.h"
+#include "ad7768-1.h"
+
+/******************************************************************************/
+/********************** Macros and Constants Definitions **********************/
+/******************************************************************************/
+
+/**
+ * @brief Macro used to compute the size of an array
+ * 
+ */
+#define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
 
 /******************************************************************************/
 /************************** Functions Implementation **************************/
 /******************************************************************************/
+
 /**
  * Compute CRC8 checksum.
  * @param data - The data buffer.
@@ -472,7 +483,7 @@ int32_t ad77681_setup(struct ad77681_dev **device,
 	dev->crc_sel = init_param.crc_sel;
 	dev->status_bit = init_param.status_bit;
 
-	spi_init(&dev->spi_desc, init_param.spi_eng_dev_init);
+	spi_init(&dev->spi_desc, init_param.spi_init_param);
 
 	ret |= ad77681_soft_reset(dev);
 	ret |= ad77681_set_power_mode(dev, dev->power_mode);

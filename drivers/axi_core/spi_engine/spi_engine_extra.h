@@ -1,7 +1,7 @@
 /*******************************************************************************
- *   @file   xilinx/spi_extra.h
- *   @brief  Header containing extra types used in the spi driver.
- *   @author scuciurean (sergiu.cuciurean@analog.com)
+ *   @file   spi_engine_extra.h
+ *   @brief  Header file of SPI Engine types.
+ *   @author Sergiu Cuciurean (sergiu.cuciurean@analog.com)
 ********************************************************************************
  * Copyright 2019(c) Analog Devices, Inc.
  *
@@ -36,43 +36,65 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *******************************************************************************/
-#ifndef SPI_EXTRA_H_
-#define SPI_EXTRA_H_
+
+#ifndef SPI_ENGINE_EXTRA_H
+#define SPI_ENGINE_EXTRA_H
 
 /******************************************************************************/
 /***************************** Include Files **********************************/
 /******************************************************************************/
 
 #include <stdint.h>
-
-/******************************************************************************/
-/********************** Macros and Constants Definitions **********************/
-/******************************************************************************/
-
-#define SPI_CS_DECODE		0x01
-#define SPI_DEASSERT_CURRENT_SS	0x0F
+#include "spi.h"
+#include "spi_extra.h"
 
 /******************************************************************************/
 /*************************** Types Declarations *******************************/
 /******************************************************************************/
 
-enum xil_spi_type {
-	SPI_PL,
-	SPI_PS,
-	SPI_ENGINE
-} xil_spi_type;
+#define OFFLOAD_TX_EN		BIT(0)
+#define OFFLOAD_RX_EN		BIT(1)
+#define OFFLOAD_TX_RX_EN	OFFLOAD_TX_EN | OFFLOAD_RX_EN
 
-typedef struct xil_spi_init_param {
+typedef struct spi_engine_offload_init_param {
+	uint32_t	rx_dma_baseaddr;
+	uint32_t	tx_dma_baseaddr;
+	uint8_t		offload_config;
+} spi_engine_offload_init_param;
+
+typedef struct spi_engine_init_param {
 	enum xil_spi_type	type;
-	uint32_t		flags;
-	uint32_t		device_id;
-} xil_spi_init_param;
+	uint32_t 		spi_engine_baseaddr;
+	uint32_t		cs_delay;
+} spi_engine_init_param;
 
-typedef struct xil_spi_desc {
-	enum xil_spi_type	type;
-	uint32_t		flags;
-	void			*config;
-	void			*instance;
-} xil_spi_desc;
+typedef struct spi_engine_desc {
+	uint32_t	spi_engine_baseaddr;
+	uint32_t	rx_dma_baseaddr;
+	uint32_t	tx_dma_baseaddr;
+	uint8_t		offload_config;
+	uint8_t		cs_delay;
+	uint32_t	rx_dma_startaddr;
+	uint32_t	tx_dma_startaddr;
+	uint32_t	rx_length;
+	uint32_t	tx_length;
+	uint32_t	clk_div;
+	uint8_t		offload_configured;
+	uint8_t		data_width;
+	uint8_t 	max_data_width;
+} spi_engine_desc;
 
-#endif // SPI_EXTRA_H_
+typedef struct spi_engine_cmd_queue{
+	uint32_t	cmd;
+	struct		spi_engine_cmd_queue *next;
+} spi_engine_cmd_queue;
+
+typedef struct spi_engine_msg {
+	uint32_t	tx_buf_addr;
+	uint32_t	rx_buf_addr;
+	uint32_t	*rx_buf;
+	uint32_t	*tx_buf;
+	struct spi_engine_cmd_queue	cmds;
+} spi_engine_msg;
+
+#endif // SPI_ENGINE_EXTRA_H
